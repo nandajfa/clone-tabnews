@@ -1,5 +1,5 @@
 all:
-	docker compose -f infra/compose.yaml up
+	docker compose -f infra/compose.yaml up -d
 
 clean:
-	docker compose down
+	docker compose -f infra/compose.yaml down --volumes --remove-orphans
