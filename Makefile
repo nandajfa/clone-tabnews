@@ -1,5 +1,11 @@
 all:
-	docker compose -f infra/compose.yaml up -d
+	npm run dev
+
+stop:
+	npm run services:stop
+
+test:
+	npm run test:watch
 
 clean:
-	docker compose -f infra/compose.yaml down --volumes --remove-orphans
+	npm run services:down
