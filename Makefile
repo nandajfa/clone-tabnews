@@ -9,3 +9,6 @@ test:
 
 clean:
 	npm run services:down
+
+fclean:
+	docker system prune -a
