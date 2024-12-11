@@ -10,5 +10,11 @@ test:
 clean:
 	npm run services:down
 
+lint:
+	npm run lint:prettier:check
+
+lintc:
+	npm run lint:prettier:fix
+
 fclean:
 	docker system prune -a
