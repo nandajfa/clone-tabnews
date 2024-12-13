@@ -1,3 +1,4 @@
+/*eslint no-undef: "error"*/
 import { Client } from "pg";
 
 async function query(queryObject) {
@@ -28,15 +29,16 @@ async function getNewClient() {
   return client;
 }
 
-export default {
+const database = {
   query,
   getNewClient,
 };
+export default database;
 
 function getSSLValues() {
-  if (process.env.POSTGRES_CA) {
-    return { ca: POSTGRES_CA };
-  }
+  // if (process.env.POSTGRES_CA) {
+  //   return { ca: POSTGRES_CA };
+  // }
 
   return process.env.NODE_ENV === "production" ? true : false;
 }
