@@ -13,8 +13,11 @@ clean:
 lint:
 	npm run lint:prettier:check
 
-lintc:
+lintfix:
 	npm run lint:prettier:fix
+
+comm:
+	npm run commit
 
 fclean:
 	docker system prune -a
