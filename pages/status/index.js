@@ -2,7 +2,7 @@ import useSwr from "swr";
 import styles from "./StatusPage.module.css";
 
 async function fetchApi(key) {
-  const response = await fetch(`http://localhost:3000/${key}`);
+  const response = await fetch(`${key}`);
   const responseBody = await response.json();
   return responseBody;
 }
