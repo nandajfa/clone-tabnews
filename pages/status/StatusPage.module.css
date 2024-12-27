@@ -16,6 +16,10 @@
   margin-bottom: 20px;
 }
 
+.status {
+  margin-top: 30px;
+}
+
 .statusGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
