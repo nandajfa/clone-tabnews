@@ -16,6 +16,9 @@ lint:
 lintfix:
 	npm run lint:prettier:fix
 
+eslint:
+	npm run lint:eslint:check
+
 comm:
 	npm run commit
 
