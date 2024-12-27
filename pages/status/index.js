@@ -42,7 +42,7 @@ function DatabaseStatus() {
     refreshInterval: 2000,
   });
 
-  if (isLoading) {
+  if (isLoading || !data) {
     return <div className={styles.status}>Carregando status...</div>;
   }
 
