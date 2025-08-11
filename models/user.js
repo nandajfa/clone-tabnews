@@ -1,5 +1,5 @@
 import database from "infra/database";
-import password from "models/password.js"
+import password from "models/password.js";
 import { ValidationError, NotFoundError } from "infra/errors.js";
 
 async function findOneByUsername(username) {
@@ -36,11 +36,10 @@ async function findOneByUsername(username) {
 async function create(userInputValues) {
   await validateUniqueUsername(userInputValues.username);
   await validateUniqueEmail(userInputValues.email);
-  await hashPasswordInObject(userInputValues)
+  await hashPasswordInObject(userInputValues);
 
   const newUser = await runInsertQuery(userInputValues);
   return newUser;
-
 
   async function runInsertQuery(userInputValues) {
     const results = await database.query({
@@ -62,25 +61,25 @@ async function create(userInputValues) {
   }
 }
 
-async function update(username, userInputValues){
-  const currentUser = await findOneByUsername(username)
+async function update(username, userInputValues) {
+  const currentUser = await findOneByUsername(username);
 
   if ("username" in userInputValues) {
-    await validateUniqueUsername(userInputValues.username)
+    await validateUniqueUsername(userInputValues.username);
   }
 
   if ("email" in userInputValues) {
-    await validateUniqueEmail(userInputValues.email)
+    await validateUniqueEmail(userInputValues.email);
   }
 
-  if ("password" in userInputValues){
-    await hashPasswordInObject(userInputValues)
+  if ("password" in userInputValues) {
+    await hashPasswordInObject(userInputValues);
   }
-  const userWithNewValues = { ...currentUser, ...userInputValues}
-  const updatedUser = await runUpdateQuery(userWithNewValues)
+  const userWithNewValues = { ...currentUser, ...userInputValues };
+  const updatedUser = await runUpdateQuery(userWithNewValues);
   return updatedUser;
 
-  async function runUpdateQuery(userWithNewValues){
+  async function runUpdateQuery(userWithNewValues) {
     const results = await database.query({
       text: `
       UPDATE
@@ -95,13 +94,14 @@ async function update(username, userInputValues){
       RETURNING
         *
       `,
-      values: [userWithNewValues.id,
+      values: [
+        userWithNewValues.id,
         userWithNewValues.username,
         userWithNewValues.email,
         userWithNewValues.password,
-      ]
-    })
-    return results.rows[0]
+      ],
+    });
+    return results.rows[0];
   }
 }
 
@@ -147,15 +147,15 @@ async function validateUniqueEmail(email) {
   }
 }
 
-async function hashPasswordInObject(userInputValues){
-  const hashedPassword = await password.hash(userInputValues.password)
-  userInputValues.password = hashedPassword
+async function hashPasswordInObject(userInputValues) {
+  const hashedPassword = await password.hash(userInputValues.password);
+  userInputValues.password = hashedPassword;
 }
 
 const user = {
   create,
   findOneByUsername,
-  update
+  update,
 };
 
 export default user;
