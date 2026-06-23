@@ -1,6 +1,7 @@
 import email from "infra/email.js";
 import database from "infra/database";
 import webserver from "infra/webserver"
+import user from 'models/user'
 
 const EXPIRATION_IN_MILISECONDS = 60 * 15 * 1000; //15 min
 
@@ -71,10 +72,40 @@ Equipe FinTab!`,
 	});
 }
 
+async function markTokenAsUsed(activationTokenId) {
+	const usedActivationToken = await runUpdateQuery(activationTokenId)
+	return usedActivationToken;
+
+	async function runUpdateQuery(){
+		const results = await database.query({
+			text: `
+			UPDATE
+				user_activation_tokens
+			SET
+				used_at = timezone('utc', now()),
+				updated_at = timezone('utc', now())
+			WHERE
+				id = $1
+			RETURNING
+				*
+			`,
+			values: [activationTokenId]
+		});
+		return results.rows[0]
+	}
+}
+
+async function activateUserByUserId(userId){
+	const activateUser = await user.setFeatures(userId, ["create:session"]);
+	return activateUser
+}
+
 const activation = {
 	create,
 	findOneValidById,
 	sendEmailToUser,
+	activateUserByUserId,
+	markTokenAsUsed,
 }
 
 export default activation
