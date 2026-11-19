@@ -70,7 +70,7 @@ async function injectAnonymousOrUser(request, response, next){
 async function injectAuthenticatedUser(request) {
   const sessionToken = request.cookies.session_id;
   const sessionObject = await session.findOneValidByToken(sessionToken)
-  const userObject = await user.findOneById(sessionObject)
+  const userObject = await user.findOneById(sessionObject.user_id)
 
   request.context = {
     ...request.context,
