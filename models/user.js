@@ -99,7 +99,7 @@ async function create(userInputValues) {
   await validateUniqueUsername(userInputValues.username);
   await validateUniqueEmail(userInputValues.email);
   await hashPasswordInObject(userInputValues);
-  injectDefaultFeaturesInObject(userInputValues)
+  injectDefaultFeaturesInObject(userInputValues);
 
   const newUser = await runInsertQuery(userInputValues);
   return newUser;
@@ -220,11 +220,11 @@ async function hashPasswordInObject(userInputValues) {
   userInputValues.password = hashedPassword;
 }
 
-async function setFeatures(userId, features){
+async function setFeatures(userId, features) {
   const updatedUser = await runUpdateQuery(userId, features);
-  return updatedUser
+  return updatedUser;
 
-  async function runUpdateQuery(userId, features){
+  async function runUpdateQuery(userId, features) {
     const results = await database.query({
       text: `
       UPDATE
@@ -239,7 +239,7 @@ async function setFeatures(userId, features){
       ;`,
       values: [userId, features],
     });
-    return results.rows[0]
+    return results.rows[0];
   }
 }
 

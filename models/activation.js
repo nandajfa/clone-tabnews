@@ -1,17 +1,18 @@
 import email from "infra/email.js";
 import database from "infra/database";
-import webserver from "infra/webserver"
-import user from 'models/user'
+import webserver from "infra/webserver";
+import user from "models/user";
+import { NotFoundError } from "infra/errors.js";
 
 const EXPIRATION_IN_MILISECONDS = 60 * 15 * 1000; //15 min
 
-async function findOneValidById(tokenId){
-	const activationTokenObject = await runSelectQuery(tokenId)
-	return activationTokenObject;
+async function findOneValidById(tokenId) {
+  const activationTokenObject = await runSelectQuery(tokenId);
+  return activationTokenObject;
 
-	async function runSelectQuery(tokenId) {
-		const results = await database.query({
-			text: `
+  async function runSelectQuery(tokenId) {
+    const results = await database.query({
+      text: `
 			SELECT
 				*
 			FROM
@@ -23,28 +24,29 @@ async function findOneValidById(tokenId){
 			LIMIT
 				1
 			;`,
-			values: [tokenId]
-		});
+      values: [tokenId],
+    });
 
-		if (results.rowCount === 0) {
-			throw new NotFoundError({
-				message: "O token de ativação utilizado não foi encontrado no sistema ou expirou.",
-				action: "Faça um novo cadastro.,"
-			})
-		}
-		return results.rows[0];
-	}
+    if (results.rowCount === 0) {
+      throw new NotFoundError({
+        message:
+          "O token de ativação utilizado não foi encontrado no sistema ou expirou.",
+        action: "Faça um novo cadastro.,",
+      });
+    }
+    return results.rows[0];
+  }
 }
 
 async function create(userId) {
-	const expiresAt = new Date(Date.now() + EXPIRATION_IN_MILISECONDS);
+  const expiresAt = new Date(Date.now() + EXPIRATION_IN_MILISECONDS);
 
-	const newToken = await runInsertQuery(userId, expiresAt);
-	return newToken;
+  const newToken = await runInsertQuery(userId, expiresAt);
+  return newToken;
 
-	async function runInsertQuery(userId, expiresAt) {
-		const results = await database.query({
-			text: `
+  async function runInsertQuery(userId, expiresAt) {
+    const results = await database.query({
+      text: `
 				INSERT INTO
 					user_activation_tokens (user_id, expires_at)
 				VALUES
@@ -52,33 +54,33 @@ async function create(userId) {
 				RETURNING
 					*
 				;`,
-			values: [userId, expiresAt],
-		});
-		return results.rows[0];
-	}
+      values: [userId, expiresAt],
+    });
+    return results.rows[0];
+  }
 }
 
 async function sendEmailToUser(user, activationToken) {
-	await email.send({
-		from: "FINTAB <contato@fintab.com.br>",
-		to: user.email,
-		subject: "Ative seu cadastro no FinTab!",
-		text: `${user.username}, clique no link abaixo para ativar seu cadastro no  FinTab.
+  await email.send({
+    from: "FINTAB <contato@fintab.com.br>",
+    to: user.email,
+    subject: "Ative seu cadastro no FinTab!",
+    text: `${user.username}, clique no link abaixo para ativar seu cadastro no  FinTab.
 
 ${webserver.origin}/cadastro/ativar/${activationToken.id}
 
 Atenciosamento
 Equipe FinTab!`,
-	});
+  });
 }
 
 async function markTokenAsUsed(activationTokenId) {
-	const usedActivationToken = await runUpdateQuery(activationTokenId)
-	return usedActivationToken;
+  const usedActivationToken = await runUpdateQuery(activationTokenId);
+  return usedActivationToken;
 
-	async function runUpdateQuery(){
-		const results = await database.query({
-			text: `
+  async function runUpdateQuery() {
+    const results = await database.query({
+      text: `
 			UPDATE
 				user_activation_tokens
 			SET
@@ -89,23 +91,26 @@ async function markTokenAsUsed(activationTokenId) {
 			RETURNING
 				*
 			`,
-			values: [activationTokenId]
-		});
-		return results.rows[0]
-	}
+      values: [activationTokenId],
+    });
+    return results.rows[0];
+  }
 }
 
-async function activateUserByUserId(userId){
-	const activateUser = await user.setFeatures(userId, ["create:session", "read:session"]);
-	return activateUser
+async function activateUserByUserId(userId) {
+  const activateUser = await user.setFeatures(userId, [
+    "create:session",
+    "read:session",
+  ]);
+  return activateUser;
 }
 
 const activation = {
-	create,
-	findOneValidById,
-	sendEmailToUser,
-	activateUserByUserId,
-	markTokenAsUsed,
-}
+  create,
+  findOneValidById,
+  sendEmailToUser,
+  activateUserByUserId,
+  markTokenAsUsed,
+};
 
-export default activation
+export default activation;

@@ -6,10 +6,10 @@ exports.up = (pgm) => {
       default: pgm.func("gen_random_uuid()"),
     },
 
-	used_at: {
-		type: 'timestamptz',
-		notNull: false,
-	},
+    used_at: {
+      type: "timestamptz",
+      notNull: false,
+    },
 
     user_id: {
       type: "uuid",

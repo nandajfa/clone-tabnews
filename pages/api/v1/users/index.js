@@ -13,7 +13,7 @@ async function postHandler(request, response) {
   const userInputValues = request.body;
   const newUser = await user.create(userInputValues);
 
-  const  activationToken = await activation.create(newUser.id);
+  const activationToken = await activation.create(newUser.id);
   await activation.sendEmailToUser(newUser, activationToken);
 
   return response.status(201).json(newUser);
