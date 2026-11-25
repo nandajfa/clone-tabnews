@@ -1,7 +1,7 @@
-import orchestrator from "tests/orchestrator";
-import activation from "models/activation";
-import webserver from "infra/webserver";
-import user from "models/user";
+import user from "models/user.js";
+import activation from "models/activation.js";
+import orchestrator from "tests/orchestrator.js";
+import webserver from "infra/webserver.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -10,36 +10,32 @@ beforeAll(async () => {
   await orchestrator.deleteAllEmails();
 });
 
-describe("Use case: Registration flow  (all succesfull)", () => {
+describe("Use case: Registration Flow (all successful)", () => {
   let createUserResponseBody;
-  let createSessionsResponseBody;
   let activationTokenId;
+  let createSessionsResponseBody;
 
   test("Create user account", async () => {
-    const createUserResponse = await fetch(
-      "http://localhost:3000/api/v1/users",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: "Registration flow",
-          email: "registration.flow@curso.dev",
-          password: "Registrationflowpass",
-        }),
+    const createUserResponse = await fetch(`${webserver.origin}/api/v1/users`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        username: "RegistrationFlow",
+        email: "registration.flow@curso.dev",
+        password: "RegistrationFlowPassword",
+      }),
+    });
+
     expect(createUserResponse.status).toBe(201);
 
     createUserResponseBody = await createUserResponse.json();
 
     expect(createUserResponseBody).toEqual({
       id: createUserResponseBody.id,
-      username: "Registration flow",
-      email: "registration.flow@curso.dev",
+      username: "RegistrationFlow",
       features: ["read:activation_token"],
-      password: createUserResponseBody.password,
       created_at: createUserResponseBody.created_at,
       updated_at: createUserResponseBody.updated_at,
     });
@@ -51,9 +47,9 @@ describe("Use case: Registration flow  (all succesfull)", () => {
     expect(lastEmail.sender).toBe("<contato@fintab.com.br>");
     expect(lastEmail.recipients[0]).toBe("<registration.flow@curso.dev>");
     expect(lastEmail.subject).toBe("Ative seu cadastro no FinTab!");
-    expect(lastEmail.text).toContain("Registration flow");
+    expect(lastEmail.text).toContain("RegistrationFlow");
 
-    activationTokenId = await orchestrator.extractUUID(lastEmail.text);
+    activationTokenId = orchestrator.extractUUID(lastEmail.text);
 
     expect(lastEmail.text).toContain(
       `${webserver.origin}/cadastro/ativar/${activationTokenId}`,
@@ -66,9 +62,9 @@ describe("Use case: Registration flow  (all succesfull)", () => {
     expect(activationTokenObject.used_at).toBe(null);
   });
 
-  test("Activation account", async () => {
+  test("Activate account", async () => {
     const activationResponse = await fetch(
-      `http://localhost:3000/api/v1/activations/${activationTokenId}`,
+      `${webserver.origin}/api/v1/activations/${activationTokenId}`,
       {
         method: "PATCH",
       },
@@ -80,8 +76,12 @@ describe("Use case: Registration flow  (all succesfull)", () => {
 
     expect(Date.parse(activationResponseBody.used_at)).not.toBeNaN();
 
-    const activetedUser = await user.findOneByUsername("Registration flow");
-    expect(activetedUser.features).toEqual(["create:session", "read:session"]);
+    const activatedUser = await user.findOneByUsername("RegistrationFlow");
+    expect(activatedUser.features).toEqual([
+      "create:session",
+      "read:session",
+      "update:user",
+    ]);
   });
 
   test("Login", async () => {
@@ -94,7 +94,7 @@ describe("Use case: Registration flow  (all succesfull)", () => {
         },
         body: JSON.stringify({
           email: "registration.flow@curso.dev",
-          password: "Registrationflowpass",
+          password: "RegistrationFlowPassword",
         }),
       },
     );
@@ -107,7 +107,7 @@ describe("Use case: Registration flow  (all succesfull)", () => {
   });
 
   test("Get user information", async () => {
-    const userResponse = await fetch("http://localhost:3000/api/v1/user", {
+    const userResponse = await fetch(`${webserver.origin}/api/v1/user`, {
       headers: {
         cookie: `session_id=${createSessionsResponseBody.token}`,
       },
