@@ -33,7 +33,7 @@ describe("PATCH /api/v1/users/[username]", () => {
       const responseBody = await response.json();
 
       expect(responseBody).toEqual({
-        action: 'Verifique se o seu usuário possui a feature "update:user"',
+        action: 'Verifique se o seu usuário possui a feature "update:user".',
         message: "Você não possui permissão para executar esta ação.",
         name: "ForbiddenError",
         status_code: 403,

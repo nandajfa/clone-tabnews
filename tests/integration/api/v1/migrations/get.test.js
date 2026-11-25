@@ -19,7 +19,7 @@ describe("GET /api/v1/migrations", () => {
       expect(responseBody).toEqual({
         name: "ForbiddenError",
         message: "Você não possui permissão para executar esta ação.",
-        action: 'Verifique se o seu usuário possui a feature "read:migration"',
+        action: 'Verifique se o seu usuário possui a feature "read:migration".',
         status_code: 403,
       });
     });
@@ -44,7 +44,7 @@ describe("GET /api/v1/migrations", () => {
       expect(responseBody).toEqual({
         name: "ForbiddenError",
         message: "Você não possui permissão para executar esta ação.",
-        action: 'Verifique se o seu usuário possui a feature "read:migration"',
+        action: 'Verifique se o seu usuário possui a feature "read:migration".',
         status_code: 403,
       });
     });
